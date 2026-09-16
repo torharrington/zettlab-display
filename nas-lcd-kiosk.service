@@ -1,0 +1,17 @@
+[Unit]
+Description=NAS LCD dashboard kiosk (cog on eDP-1)
+After=weston.service docker.service
+Wants=weston.service
+
+[Service]
+Type=simple
+Environment=XDG_RUNTIME_DIR=/run
+Environment=WAYLAND_DISPLAY=wayland-1
+# Wait for the dashboard HTTP endpoint before launching the browser.
+ExecStartPre=/bin/sh -c "for i in $(seq 1 30); do curl -sf http://127.0.0.1:8080/api/stats >/dev/null && exit 0; sleep 1; done; exit 0"
+ExecStart=/usr/bin/cog --platform=wl http://127.0.0.1:8080
+Restart=always
+RestartSec=5s
+
+[Install]
+WantedBy=multi-user.target

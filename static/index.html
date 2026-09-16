@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=640, height=172, initial-scale=1">
+<title>NAS Status</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- Inline SVG icon sprite (no network, recolorable via currentColor) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-disk" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/>
+      <circle cx="12" cy="12" r="3" fill="currentColor"/>
+      <circle cx="12" cy="12" r="6.2" fill="none" stroke="currentColor" stroke-width="1" opacity="0.5"/>
+    </symbol>
+    <symbol id="i-cpu" viewBox="0 0 24 24">
+      <rect x="6" y="6" width="12" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="2"/>
+      <rect x="9.5" y="9.5" width="5" height="5" rx="1" fill="currentColor"/>
+      <g stroke="currentColor" stroke-width="1.6">
+        <path d="M9 3v3M12 3v3M15 3v3M9 18v3M12 18v3M15 18v3M3 9h3M3 12h3M3 15h3M18 9h3M18 12h3M18 15h3"/>
+      </g>
+    </symbol>
+    <symbol id="i-mem" viewBox="0 0 24 24">
+      <rect x="3" y="7" width="18" height="10" rx="1.5" fill="none" stroke="currentColor" stroke-width="2"/>
+      <g stroke="currentColor" stroke-width="1.6"><path d="M7 17v3M11 17v3M13 17v3M17 17v3"/></g>
+      <g fill="currentColor" opacity="0.7"><rect x="6" y="10" width="2.5" height="4"/><rect x="10" y="10" width="2.5" height="4"/><rect x="15.5" y="10" width="2.5" height="4"/></g>
+    </symbol>
+    <symbol id="i-fan" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="2" fill="currentColor"/>
+      <path fill="currentColor" d="M12 2c2 0 3 3 2.5 5.5C13 7 12.5 8 12 10c0-3-1-5-1-6.5C11 2.5 11.3 2 12 2z"/>
+      <path fill="currentColor" d="M22 12c0 2-3 3-5.5 2.5C17 13 16 12.5 14 12c3 0 5-1 6.5-1 .5 0 1 .3 1 1z"/>
+      <path fill="currentColor" d="M12 22c-2 0-3-3-2.5-5.5C11 17 11.5 16 12 14c0 3 1 5 1 6.5 0 .5-.3 1-1 1z"/>
+      <path fill="currentColor" d="M2 12c0-2 3-3 5.5-2.5C7 11 8 11.5 10 12c-3 0-5 1-6.5 1-.5 0-1-.3-1-1z"/>
+    </symbol>
+    <symbol id="i-globe" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.6"/>
+      <path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18" fill="none" stroke="currentColor" stroke-width="1.4"/>
+    </symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.6"/>
+      <path d="M12 7v5l3 2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="i-nvme" viewBox="0 0 24 24">
+      <rect x="4" y="8" width="16" height="8" rx="1.5" fill="none" stroke="currentColor" stroke-width="2"/>
+      <path d="M11 9.5l-2 3h3l-2 3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M17 10.5v3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+    </symbol>
+  </defs>
+</svg>
+
+<div id="screen">
+
+  <!-- Header -->
+  <header>
+    <div class="h-left">
+      <span class="nas-name" id="nasName">NAS</span>
+      <span class="pill" id="statusPill"><span class="pill-dot"></span><span id="statusText">– OK</span></span>
+    </div>
+    <div class="clock" id="clock">--:--</div>
+    <div class="h-right">
+      <svg class="ic ic-sm"><use href="#i-globe"/></svg>
+      <span id="ip">0.0.0.0</span>
+    </div>
+  </header>
+
+  <!-- Metric cards -->
+  <section class="cards">
+
+    <!-- Storage donut -->
+    <div class="card">
+      <div class="card-title"><svg class="ic"><use href="#i-disk"/></svg>STORAGE</div>
+      <div class="storage-body">
+        <div class="donut" id="donut"><span id="storagePct">0%</span></div>
+        <div class="storage-nums">
+          <div><span class="lbl">USED</span><span class="val" id="stUsed">0GB</span></div>
+          <div><span class="lbl">TOTAL</span><span class="val" id="stTotal">0GB</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CPU arc gauge -->
+    <div class="card">
+      <div class="card-title"><svg class="ic"><use href="#i-cpu"/></svg>CPU</div>
+      <div class="gauge-body">
+        <div class="arc" id="cpuArc"><div class="arc-val"><span id="cpuTemp">0</span><span class="u">°C</span></div></div>
+        <div class="side"><span class="lbl">UTIL</span><span class="val" id="cpuUtil">0%</span></div>
+      </div>
+    </div>
+
+    <!-- Memory arc gauge -->
+    <div class="card">
+      <div class="card-title"><svg class="ic"><use href="#i-mem"/></svg>MEMORY</div>
+      <div class="gauge-body">
+        <div class="arc" id="memArc"><div class="arc-val"><span id="memPct">0</span><span class="u">%</span></div></div>
+        <div class="side"><span class="lbl" id="memUsed">0G</span><span class="val" id="memTotal">/0G</span></div>
+      </div>
+    </div>
+
+    <!-- Fans -->
+    <div class="card fans">
+      <div class="card-title"><svg class="ic"><use href="#i-fan"/></svg>FANS</div>
+      <div class="fan-row" id="fanRow"></div>
+      <div class="uptime"><svg class="ic ic-sm"><use href="#i-clock"/></svg><span id="uptime">up --</span></div>
+    </div>
+
+  </section>
+
+  <!-- Disk row -->
+  <section class="disks" id="diskRow"></section>
+
+</div>
+<script src="app.js"></script>
+</body>
+</html>

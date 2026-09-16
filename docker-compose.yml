@@ -1,0 +1,40 @@
+# Custom NAS LCD dashboard (640x172).
+# Kiosk pipeline (cog -> weston/cage rotate-270 -> panel) is separate.
+#
+# Disks are AUTO-DISCOVERED at runtime (all sd* + nvme*n1 found in /sys/block),
+# so this works on a 6-bay + 2-NVMe unit (up to 8 data disks) without edits.
+# The OS NVMe is excluded by default (set SHOW_OS_DISK=1 to include it).
+services:
+  nas-lcd:
+    build: .
+    image: nas-lcd-dashboard:latest
+    container_name: nas-lcd
+    restart: unless-stopped
+    network_mode: host          # serves on 127.0.0.1:8080
+    pid: host                   # see host CPU/processes
+    cap_add:
+      - SYS_RAWIO               # smartctl disk access
+      - SYS_ADMIN
+    # Broad block-device access so smartctl can read ANY populated bay/slot
+    # without enumerating devices that may not exist yet.
+    # 8:* = SCSI disks (sd*), 259:* = NVMe (nvme*). Read/write for SMART ioctls.
+    device_cgroup_rules:
+      - 'c 8:* rwm'
+      - 'b 8:* rwm'
+      - 'c 259:* rwm'
+      - 'b 259:* rwm'
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /dev:/host/dev            # smartctl needs the device nodes
+      - /zettos/pool/1:/host/pool:ro
+    environment:
+      - PORT=8080
+      - NAS_NAME=NAS
+      - HOST_PROC=/host/proc
+      - HOST_SYS=/host/sys
+      - HOST_DEV=/host/dev
+      - POOL_PATH=/host/pool
+      - OS_NVME=nvme0n1           # which NVMe is the OS drive (excluded by default)
+      - SHOW_OS_DISK=1            # set 1 to also show the OS drive
+      # DISKS=  (leave unset to auto-discover; or set a comma list to override)

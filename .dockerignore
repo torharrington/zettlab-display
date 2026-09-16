@@ -1,0 +1,12 @@
+# Only app.py and static/ are needed in the image.
+.git
+.gitignore
+.dockerignore
+.kiro/
+*.md
+nas-lcd-kiosk.service
+docker-compose.yml
+__pycache__/
+*.pyc
+.DS_Store
+._*
