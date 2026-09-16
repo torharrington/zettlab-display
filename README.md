@@ -11,6 +11,8 @@ drive degradation, not just temperature.
 
 > Proof-of-concept. Works today, but treat it as a hobby project — see caveats.
 
+![Example dashboard](docs/dashboard-example.png)
+
 ## How it works
 
 Three decoupled layers that only communicate over HTTP:
@@ -131,4 +133,4 @@ first — it documents the hard constraints (zero-dep backend, no frontend build
 
 ## License
 
-MIT — see [`LICENSE`](./LICENSE). (Set your name in the copyright line.)
+MIT — see [`LICENSE`](./LICENSE).

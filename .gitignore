@@ -20,3 +20,7 @@ venv/
 
 # Build / runtime artefacts
 *.log
+
+# Generated design-preview artefacts (regenerate with `make preview` / `make render`)
+docs/preview.html
+docs/_render.html

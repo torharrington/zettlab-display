@@ -7,6 +7,11 @@ kiosk browser, with live metrics collected from the host.
 Works on **ZettOS today** and on any **Debian/Ubuntu-based** system, including
 **FygoOS** (Debian-based, ships Docker + Compose).
 
+![Example dashboard](docs/dashboard-example.png)
+
+*Example render (640×172): OS / DATA / CACHE disk groups with role colours and
+SMART-based health state — `sde` shown in amber as a warning example.*
+
 ---
 
 ## 1. Contents
@@ -20,8 +25,45 @@ Works on **ZettOS today** and on any **Debian/Ubuntu-based** system, including
 | `Dockerfile` | `python:3.12-slim` + `smartmontools` |
 | `docker-compose.yml` | Runs the dashboard with host mounts + caps |
 | `nas-lcd-kiosk.service` | systemd unit that launches the kiosk browser |
+| `Makefile` | Task shortcuts: `preview`, `render`, `build`, `up`, `deploy`… |
+| `docs/preview.js` | Builds an openable browser preview (offline, sample data) |
+| `docs/render.js` | Renders the preview PNG via headless Chrome |
+| `docs/sample-data.js` | Sample metrics for preview/render (edit to try states) |
+| `docs/dashboard-example.png` | The committed preview image (from `make render`) |
 
 ---
+
+## 1a. Design preview & tooling
+
+Iterate on the dashboard **without a NAS** using the sample-data preview:
+
+```bash
+make preview        # writes docs/preview.html
+make preview-open   # …and opens it in your browser
+```
+
+`preview.html` loads the real `static/` assets with `docs/sample-data.js`
+injected in place of the live `/api/stats`, so you see the exact UI offline.
+Edit `docs/sample-data.js` to preview different states (temps, `health`
+warn/crit, disk counts/roles), then refresh the browser.
+
+Regenerate the documentation image whenever the UI changes:
+
+```bash
+make render         # writes docs/dashboard-example.png (headless Chrome, 2x)
+```
+
+Other shortcuts (`make help` lists all):
+
+| Target | Action |
+|--------|--------|
+| `make build` / `make up` / `make down` | Docker image / run / stop |
+| `make logs` / `make stats` | follow logs / fetch live `/api/stats` |
+| `make deploy` | copy project to a NAS over SSH (`NAS_HOST`, `NAS_DIR`) |
+| `make clean` | remove generated preview artefacts |
+
+> Requires Node.js (for preview/render) and a Chrome/Chromium binary for
+> `render` (auto-detected; override with `CHROME_BIN=/path/to/chrome`).
 
 ## 2. Architecture
 
